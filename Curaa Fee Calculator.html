@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Curaa Fee Quote Calculator</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(160deg,#F8F6F1,#ECE8E0);min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:16px}
+#app{width:100%;max-width:520px}
+.card{background:#fff;border-radius:14px;box-shadow:0 4px 24px rgba(11,29,58,.08);width:100%;overflow:hidden}
+.page-center{display:flex;justify-content:center;align-items:center;min-height:100vh;width:100%}
+
+/* Typography */
+.lbl{font-size:10px;font-weight:700;color:#0B1D3A;text-transform:uppercase;letter-spacing:.3px;display:block;margin-bottom:4px}
+.hint{font-size:9px;color:#8896A6;margin-top:2px}
+
+/* Inputs */
+input[type=text],input[type=email],input[type=password],input[type=number],textarea{
+  width:100%;padding:9px 11px;border:1px solid #E2E0DB;border-radius:7px;
+  font-size:13px;font-family:inherit;outline:none;background:#fff;-webkit-appearance:none}
+input.sm{padding:6px 8px;font-size:12px;border-radius:5px}
+
+/* Buttons */
+.btn{border:none;border-radius:7px;padding:10px 18px;font-size:13px;font-weight:600;
+  cursor:pointer;font-family:inherit;-webkit-appearance:none;touch-action:manipulation;display:inline-block}
+.btn-full{width:100%}
+.btn-p{background:#0FA4A0;color:#fff}
+.btn-p:disabled{opacity:.45;cursor:default}
+.btn-g{background:transparent;color:#0B1D3A;border:1px solid #E2E0DB}
+.btn-d{background:#C0392B;color:#fff;border-radius:5px;padding:6px 11px;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;touch-action:manipulation;border:none}
+.btn-sm{border:none;border-radius:4px;padding:4px 9px;font-size:9px;font-weight:600;cursor:pointer;color:#fff;touch-action:manipulation}
+.btn-tab{background:transparent;color:#4A5568;border:1px solid #E2E0DB;border-radius:5px;padding:6px 10px;font-size:10px;font-weight:500;cursor:pointer;font-family:inherit;touch-action:manipulation}
+.btn-tab.on{background:#0B1D3A;color:#fff;border-color:#0B1D3A;font-weight:700}
+
+/* Layout helpers */
+.mb8{margin-bottom:8px}.mb10{margin-bottom:10px}.mb14{margin-bottom:14px}.mb16{margin-bottom:16px}.mb18{margin-bottom:18px}
+.mt8{margin-top:8px}.mt10{margin-top:10px}.mt16{margin-top:16px}.mt20{margin-top:20px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.flex-sb{display:flex;justify-content:space-between;align-items:center}
+.flex-gap{display:flex;gap:8px}
+.wrap-gap{display:flex;flex-wrap:wrap;gap:4px}
+
+/* Divider */
+.divider{height:2px;background:linear-gradient(90deg,transparent,#0FA4A0,transparent);margin:12px 0 18px}
+
+/* Header */
+.calc-header{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:2px solid #0FA4A0;flex-wrap:wrap;gap:6px}
+.calc-body{padding:16px 16px 32px}
+
+/* Section group */
+.ag{background:#FAFAF7;border-radius:8px;padding:12px;margin-bottom:10px;border:1px solid #F0EDE8}
+.ag-title{font-weight:700;font-size:11px;color:#0B1D3A;padding-bottom:5px;margin-bottom:6px;border-bottom:2px solid #0FA4A0}
+.nf-label{font-size:10px;color:#8896A6;display:block;margin-bottom:1px}
+
+/* Care type toggle */
+.type-toggle{display:flex;border-radius:8px;overflow:hidden;border:1px solid #E2E0DB;margin-bottom:10px}
+.type-btn{flex:1;padding:9px 0;font-size:12px;font-weight:600;border:none;cursor:pointer;
+  font-family:inherit;touch-action:manipulation;-webkit-appearance:none;transition:background .15s}
+
+/* Need level grid */
+.nl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:16px}
+.nl-btn{padding:9px 4px;border:1.5px solid #E2E0DB;border-radius:7px;background:#fff;
+  cursor:pointer;text-align:center;font-family:inherit;touch-action:manipulation;-webkit-appearance:none;transition:all .15s}
+.nl-btn.sel-res{background:#0FA4A0;border-color:#0FA4A0;color:#fff}
+.nl-btn.sel-nur{background:#0B1D3A;border-color:#0B1D3A;color:#fff}
+.nl-code{font-weight:700;font-size:13px}
+.nl-desc{font-size:9px;opacity:.7;margin-top:1px}
+
+/* Toggle switch */
+.tog-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #F0EDE8;cursor:pointer}
+.tog-track{width:40px;height:22px;border-radius:11px;background:#E2E0DB;position:relative;transition:background .2s;flex-shrink:0}
+.tog-track.on{background:#0FA4A0}
+.tog-thumb{width:18px;height:18px;border-radius:9px;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 2px rgba(0,0,0,.15)}
+.tog-track.on .tog-thumb{left:20px}
+
+/* Tags */
+.tag{padding:2px 8px;border-radius:3px;font-size:10px;font-weight:700;color:#fff;display:inline-block}
+
+/* Result card */
+.result-card{background:#F8F6F1;border-radius:10px;padding:18px 14px;text-align:center;margin-bottom:12px}
+.result-wk{font-size:36px;font-weight:800;color:#0B1D3A;font-family:Georgia,serif;margin-top:2px}
+.result-meta{display:flex;justify-content:center;gap:20px;margin-top:6px}
+.result-meta-divider{width:1px;background:#E2E0DB}
+
+/* Grp */
+.grp{background:#FAFAF7;border-radius:8px;padding:12px;margin-bottom:8px;border:1px solid #F0EDE8}
+.grp-title{font-size:10px;font-weight:700;color:#0B1D3A;letter-spacing:.7px;text-transform:uppercase;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid #E2E0DB}
+
+/* Fee rows */
+.fee-row{display:flex;justify-content:space-between;padding:3px 0;font-size:11px;color:#4A5568}
+.fee-row.accent{color:#D4A843}
+.fee-row.total{font-size:13px;font-weight:800;color:#0FA4A0;border-top:2px solid #0FA4A0;margin-top:4px;padding-top:6px}
+.fee-row .val{font-weight:600}
+.fee-row.total .val{font-weight:800}
+
+/* Floor notice */
+.floor-notice{background:#FFF8E1;border:1px solid #F0CC6B;border-radius:7px;padding:8px 12px;margin-bottom:10px;font-size:11px;color:#7A6520}
+
+/* Admin log */
+.log-list{border:1px solid #E2E0DB;border-radius:8px;max-height:400px;overflow-y:auto}
+.log-item{padding:7px 10px;border-bottom:1px solid #F0EDE8;font-size:11px}
+.fb-item{padding:10px 12px;border-bottom:1px solid #F0EDE8}
+
+/* Error */
+.err-box{background:#FDF2F2;border:1px solid #F5C6C6;border-radius:7px;padding:9px 12px;margin-bottom:10px;font-size:12px;color:#C0392B}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+// ── CONFIG — hardcoded defaults (update and redeploy to change) ────────────
+var CFG = {
+  nursingTLBaseRate: 24.00,
+  carerBaseRate: 14.00,
+  ancillaryBaseRate: 15.00,
+  managementSalariesTotal: 120,
+  employerOnCostMultiplier: 1.15,
+  nursingTLHours: 1.2,
+  carerHours: 3.5,
+  managementHours: 0.65,
+  ancillaryHours: 1.35,
+  foodPerResidentWeekly: 40.00,
+  nursingMedicalSupplies: 45,
+  electricityGasWater: 45,
+  repairsMaintenance: 35,
+  furnitureEquipment: 20,
+  housekeepingGardens: 15,
+  itTechnology: 15,
+  councilTax: 5,
+  profitMargin: 0.10,
+  largeRoomUplift: 50,
+  enSuiteUplift: 50,
+  fncWeeklyRate: 267.68,
+  minResidentialWeekly: 1250,
+  minNursingWeekly: 1450,
+  oneToOneHourlyRate: 26.00,
+  validFrom: "April 2026",
+  needLevels: {
+    R1:{label:"R1 – Low Residential",      carerMult:0.60,nursingMult:0,   desc:"Minimal personal care"},
+    R2:{label:"R2 – Moderate Residential",  carerMult:0.80,nursingMult:0,   desc:"Regular personal care"},
+    R3:{label:"R3 – Standard Residential",  carerMult:1.00,nursingMult:0,   desc:"Standard residential"},
+    R4:{label:"R4 – High Residential",      carerMult:1.25,nursingMult:0,   desc:"Enhanced personal care"},
+    R5:{label:"R5 – Complex Residential",   carerMult:1.50,nursingMult:0,   desc:"Complex care needs"},
+    R6:{label:"R6 – Very High Residential", carerMult:1.80,nursingMult:0,   desc:"Intensive residential"},
+    N1:{label:"N1 – Low Nursing",           carerMult:0.80,nursingMult:0.60,desc:"Basic nursing oversight"},
+    N2:{label:"N2 – Moderate Nursing",      carerMult:1.00,nursingMult:0.80,desc:"Regular nursing care"},
+    N3:{label:"N3 – Standard Nursing",      carerMult:1.00,nursingMult:1.00,desc:"Standard nursing"},
+    N4:{label:"N4 – High Nursing",          carerMult:1.20,nursingMult:1.25,desc:"Enhanced nursing care"},
+    N5:{label:"N5 – Complex Nursing",       carerMult:1.40,nursingMult:1.50,desc:"Complex nursing needs"},
+    N6:{label:"N6 – Very High Nursing",     carerMult:1.60,nursingMult:1.80,desc:"Intensive nursing"},
+  }
+};
+
+var ADMIN_PW = "Curaa2025!";
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+var ST = {
+  view: "login",
+  uName: "", uEmail: "", loginErr: "",
+  adminAuth: false, adminPw: "", adminErr: "",
+  adminTab: "costs",
+  cfg: JSON.parse(JSON.stringify(CFG)), // deep copy
+  needLevel: "R3", largeRoom: false, enSuite: false,
+  inclFNC: false, oneToOneHrs: 0,
+  showResult: false,
+  fbText: "", fbDone: false,
+  logs: [], feedback: [],
+  saved: false
+};
+
+// Load saved config from localStorage (Teams/SharePoint environment)
+try {
+  var saved = localStorage.getItem("curaa-cfg-v6");
+  if (saved) {
+    var parsed = JSON.parse(saved);
+    ST.cfg = Object.assign({}, ST.cfg, parsed);
+    if (parsed.needLevels) ST.cfg.needLevels = Object.assign({}, ST.cfg.needLevels, parsed.needLevels);
+  }
+  var savedLogs = localStorage.getItem("curaa-logs-v6");
+  if (savedLogs) ST.logs = JSON.parse(savedLogs);
+  var savedFb = localStorage.getItem("curaa-fb-v6");
+  if (savedFb) ST.feedback = JSON.parse(savedFb);
+} catch(e) {}
+
+// ── PERSISTENCE ────────────────────────────────────────────────────────────
+// Note: in Teams/SharePoint, localStorage is per-device.
+// When you update rates, redeploy the file with new CFG defaults above.
+function saveCfg() {
+  try { localStorage.setItem("curaa-cfg-v6", JSON.stringify(ST.cfg)); } catch(e) {}
+  ST.saved = true;
+  setTimeout(function(){ ST.saved = false; render(); }, 1500);
+}
+function saveLogs() {
+  try { localStorage.setItem("curaa-logs-v6", JSON.stringify(ST.logs.slice(-1000))); } catch(e) {}
+}
+function saveFb() {
+  try { localStorage.setItem("curaa-fb-v6", JSON.stringify(ST.feedback)); } catch(e) {}
+}
+function addLog(action, details) {
+  ST.logs.push({ ts: new Date().toISOString(), user: ST.uName||"?", email: ST.uEmail||"", action: action, details: details||{} });
+  saveLogs();
+}
+
+// ── FEE CALCULATION ────────────────────────────────────────────────────────
+// Logic: staff + non-staff = base
+//        base + room uplifts + 1-2-1 = pre-margin total
+//        pre-margin × (1 + margin) = calculated fee
+//        floor applied universally to ALL need levels
+//        FNC added on top — never inside margin, never inside floor test
+function computeFee() {
+  var c = ST.cfg;
+  var nl = c.needLevels[ST.needLevel];
+  if (!nl) return null;
+  var oc = c.employerOnCostMultiplier;
+  var nursingRate = c.nursingTLBaseRate * oc * oc;
+  var carerRate   = c.carerBaseRate * oc * oc;
+  var ancRate     = c.ancillaryBaseRate * oc * oc;
+  var mgmtRate    = (c.managementSalariesTotal * oc * 1000) / (5.71 * 7 * 52);
+
+  var staffDaily =
+    c.nursingTLHours   * nl.nursingMult * nursingRate +
+    c.carerHours       * nl.carerMult   * carerRate +
+    c.managementHours  * mgmtRate +
+    c.ancillaryHours   * ancRate;
+  var staffWk = staffDaily * 7;
+
+  var nonStaffWk =
+    c.foodPerResidentWeekly + c.nursingMedicalSupplies +
+    c.electricityGasWater   + c.repairsMaintenance +
+    c.furnitureEquipment    + c.housekeepingGardens +
+    c.itTechnology          + c.councilTax;
+
+  var baseWk = staffWk + nonStaffWk;
+  var lrWk   = ST.largeRoom ? c.largeRoomUplift : 0;
+  var esWk   = ST.enSuite   ? c.enSuiteUplift   : 0;
+  var otwk   = ST.oneToOneHrs > 0 ? ST.oneToOneHrs * c.oneToOneHourlyRate * 7 : 0;
+
+  var premargin   = baseWk + lrWk + esWk + otwk;
+  var marginWk    = premargin * c.profitMargin;
+  var calculated  = premargin + marginWk;
+
+  var isN     = ST.needLevel.charAt(0) === "N";
+  var minFee  = isN ? c.minNursingWeekly : c.minResidentialWeekly;
+  var floorApplied = calculated < minFee;
+  var feeBeforeFNC = floorApplied ? minFee : calculated;
+  var fncWk   = ST.inclFNC ? c.fncWeeklyRate : 0;
+  var totalWk = feeBeforeFNC + fncWk;
+
+  return {
+    nl: nl, staffWk: staffWk, nonStaffWk: nonStaffWk, baseWk: baseWk,
+    lrWk: lrWk, esWk: esWk, otwk: otwk,
+    premargin: premargin, marginWk: marginWk, calculated: calculated,
+    feeBeforeFNC: feeBeforeFNC, fncWk: fncWk, totalWk: totalWk,
+    floorApplied: floorApplied, minFee: minFee,
+    daily: totalWk / 7, annual: totalWk * 52,
+    food: c.foodPerResidentWeekly, medical: c.nursingMedicalSupplies,
+    utilities: c.electricityGasWater, repairs: c.repairsMaintenance,
+    furniture: c.furnitureEquipment, housekeeping: c.housekeepingGardens,
+    it: c.itTechnology, councilTax: c.councilTax
+  };
+}
+
+// ── HELPERS ────────────────────────────────────────────────────────────────
+function fmt(n) {
+  return "£" + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+function esc(s) {
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function logo(h) {
+  h = h || 48;
+  var fontSize = Math.round(h * 0.72);
+  return '<span style="font-family:\'Segoe UI\',Arial,sans-serif;font-weight:900;font-size:'+fontSize+'px;color:#0B1D3A;letter-spacing:-1px;line-height:1">Curaa</span>';
+}
+function tog(id, on) {
+  return '<div class="tog-track'+(on?" on":"")+'" id="'+id+'"><div class="tog-thumb"></div></div>';
+}
+function feeRow(label, val, cls) {
+  return '<div class="fee-row'+(cls?" "+cls:"")+'"><span>'+label+'</span><span class="val">'+fmt(val)+'</span></div>';
+}
+function nfInput(key, label, val, step) {
+  step = step || 1;
+  return '<div class="mb8"><label class="nf-label">'+label+'</label>' +
+    '<input type="number" class="sm" step="'+step+'" value="'+val+'" data-key="'+key+'" onchange="updateCfg(this)"/></div>';
+}
+function divider() { return '<div class="divider"></div>'; }
+
+// ── RENDER ─────────────────────────────────────────────────────────────────
+function render() {
+  var html = "";
+  if      (ST.view === "login")    html = renderLogin();
+  else if (ST.view === "admin" && !ST.adminAuth) html = renderAdminAuth();
+  else if (ST.view === "admin" && ST.adminAuth)  html = renderAdmin();
+  else if (ST.view === "feedback") html = renderFeedback();
+  else if (ST.view === "calculator") html = renderCalc();
+  document.getElementById("app").innerHTML = html;
+  bindEvents();
+}
+
+// ── LOGIN ──────────────────────────────────────────────────────────────────
+function renderLogin() {
+  var ok = ST.uName.trim().length > 1 && ST.uEmail.trim().toLowerCase().endsWith("@curaa.co.uk");
+  return '<div class="page-center"><div class="card" style="max-width:380px;padding:36px 28px 28px">' +
+    '<div style="text-align:center;margin-bottom:18px">'+logo(60)+'</div>' +
+    divider() +
+    '<p style="font-size:12px;color:#4A5568;text-align:center;margin-bottom:18px">Sign in with your <strong>@curaa.co.uk</strong> work account.</p>' +
+    '<div class="mb10"><label class="lbl">Full Name</label><input type="text" id="iName" value="'+esc(ST.uName)+'" placeholder="e.g. Clare Batty"/></div>' +
+    '<div class="mb10"><label class="lbl">Work Email</label><input type="email" id="iEmail" value="'+esc(ST.uEmail)+'" placeholder="you@curaa.co.uk"/></div>' +
+    (ST.loginErr ? '<div class="err-box">'+esc(ST.loginErr)+'</div>' : '') +
+    '<button class="btn btn-p btn-full" id="btnLogin"'+(ok?"":" disabled")+'>Sign In</button>' +
+    '<button class="btn btn-g btn-full mt10" id="btnAdmin">Admin Access</button>' +
+    '</div></div>';
+}
+
+// ── ADMIN AUTH ─────────────────────────────────────────────────────────────
+function renderAdminAuth() {
+  return '<div class="page-center"><div class="card" style="max-width:360px;padding:34px 28px">' +
+    '<div style="text-align:center;margin-bottom:16px">'+logo(52)+
+    '<div style="font-size:10px;color:#8896A6;letter-spacing:3px;margin-top:6px;text-transform:uppercase">Admin</div></div>' +
+    divider() +
+    '<div class="mb10"><label class="lbl">Password</label><input type="password" id="iPw" value="'+esc(ST.adminPw)+'" placeholder="Enter admin password"/></div>' +
+    (ST.adminErr ? '<p style="color:#C0392B;font-size:12px;margin:0 0 8px">'+esc(ST.adminErr)+'</p>' : '') +
+    '<button class="btn btn-p btn-full" id="btnAuth">Authenticate</button>' +
+    '<button class="btn btn-g btn-full mt10" id="btnBack">Back</button>' +
+    '</div></div>';
+}
+
+// ── ADMIN PANEL ────────────────────────────────────────────────────────────
+function renderAdmin() {
+  var c = ST.cfg;
+  var tabs = [["costs","Costs"],["hours","Hours"],["needs","Need Levels"],["uplifts","Uplifts"],["logs","Activity"],["feedback","Feedback"]];
+  var tabHtml = tabs.map(function(t){
+    return '<button class="btn-tab'+(ST.adminTab===t[0]?" on":"")+'" data-tab="'+t[0]+'">'+t[1]+'</button>';
+  }).join(" ");
+
+  var content = "";
+
+  if (ST.adminTab === "costs") {
+    content = '<div class="ag"><div class="ag-title">Non-Staff Weekly Costs (£/resident)</div>' +
+      '<div class="grid2">' +
+      nfInput("foodPerResidentWeekly","Food (£/res/week)",c.foodPerResidentWeekly,0.5) +
+      nfInput("nursingMedicalSupplies","Nursing & Medical",c.nursingMedicalSupplies) +
+      nfInput("electricityGasWater","Utilities",c.electricityGasWater) +
+      nfInput("repairsMaintenance","Repairs & Maintenance",c.repairsMaintenance) +
+      nfInput("furnitureEquipment","Furniture & Equipment",c.furnitureEquipment) +
+      nfInput("housekeepingGardens","Housekeeping & Gardens",c.housekeepingGardens) +
+      nfInput("itTechnology","IT & Technology",c.itTechnology) +
+      nfInput("councilTax","Council Tax",c.councilTax) +
+      '</div></div>' +
+      '<div class="ag"><div class="ag-title">1-2-1 Care</div>' +
+      '<div class="grid2">'+nfInput("oneToOneHourlyRate","1-2-1 Hourly Rate (£/hr)",c.oneToOneHourlyRate,0.5)+'<div></div></div>' +
+      '<p class="hint">Manager enters daily hours in the calculator. Weekly cost = hours × rate × 7.</p></div>';
+  }
+
+  if (ST.adminTab === "hours") {
+    content = '<div class="ag"><div class="ag-title">Base Hourly Rates (£/hr)</div><div class="grid2">' +
+      nfInput("nursingTLBaseRate","Nursing / TL",c.nursingTLBaseRate,0.25) +
+      nfInput("carerBaseRate","Carer",c.carerBaseRate,0.25) +
+      nfInput("ancillaryBaseRate","Ancillary",c.ancillaryBaseRate,0.25) +
+      nfInput("managementSalariesTotal","Mgmt Total (£k/yr)",c.managementSalariesTotal,5) +
+      nfInput("employerOnCostMultiplier","On-Cost Multiplier",c.employerOnCostMultiplier,0.01) +
+      '<div></div></div></div>' +
+      '<div class="ag"><div class="ag-title">Base Hours / Resident / Day</div><div class="grid2">' +
+      nfInput("nursingTLHours","Nursing / TL hrs",c.nursingTLHours,0.05) +
+      nfInput("carerHours","Carer hrs",c.carerHours,0.05) +
+      nfInput("managementHours","Management hrs",c.managementHours,0.05) +
+      nfInput("ancillaryHours","Ancillary hrs",c.ancillaryHours,0.05) +
+      '</div></div>';
+  }
+
+  if (ST.adminTab === "needs") {
+    content = '<p class="hint" style="margin-bottom:10px">1.00 = base hours. Applied to staffing cost calculation.</p>';
+    Object.keys(c.needLevels).forEach(function(code) {
+      var nl = c.needLevels[code];
+      content += '<div class="ag" style="margin-bottom:6px"><div style="font-weight:700;font-size:12px;color:#0B1D3A;margin-bottom:4px">'+nl.label+'</div>' +
+        '<div class="grid2">' +
+        '<div class="mb8"><label class="nf-label">Carer mult.</label><input type="number" class="sm" step="0.05" value="'+nl.carerMult+'" data-nlkey="'+code+'" data-nlfield="carerMult" onchange="updateNL(this)"/></div>' +
+        '<div class="mb8"><label class="nf-label">Nursing mult.</label><input type="number" class="sm" step="0.05" value="'+nl.nursingMult+'" data-nlkey="'+code+'" data-nlfield="nursingMult" onchange="updateNL(this)"/></div>' +
+        '</div></div>';
+    });
+  }
+
+  if (ST.adminTab === "uplifts") {
+    content = '<div class="ag"><div class="ag-title">Weekly Uplifts</div><div class="grid2">' +
+      nfInput("largeRoomUplift","Large Room (£/wk)",c.largeRoomUplift,5) +
+      nfInput("enSuiteUplift","En-Suite (£/wk)",c.enSuiteUplift,5) +
+      nfInput("fncWeeklyRate","FNC Rate (£/wk)",c.fncWeeklyRate,0.01) +
+      '<div></div></div></div>' +
+      '<div class="ag"><div class="ag-title">Minimum Weekly Fees</div>' +
+      '<p class="hint" style="margin-bottom:8px">Floor applies to all need levels universally. FNC is always added on top and is never inside the floor test.</p>' +
+      '<div class="grid2">' +
+      nfInput("minResidentialWeekly","Residential min (£/wk)",c.minResidentialWeekly,25) +
+      nfInput("minNursingWeekly","Nursing min (£/wk)",c.minNursingWeekly,25) +
+      '</div></div>' +
+      '<div class="ag"><div class="ag-title">Margin & Label</div><div class="grid2">' +
+      nfInput("profitMargin100","Profit Margin (%)",c.profitMargin*100,0.5) +
+      '<div class="mb8"><label class="nf-label">Valid From</label><input type="text" class="sm" style="width:100%" value="'+esc(c.validFrom)+'" data-key="validFrom" onchange="updateCfg(this)"/></div>' +
+      '</div></div>' +
+      '<button class="btn-d" id="btnReset">Reset to Defaults</button>';
+  }
+
+  if (ST.adminTab === "logs") {
+    var logHtml = ST.logs.length === 0
+      ? '<p style="padding:20px;color:#8896A6;text-align:center;font-size:12px">No activity yet.</p>'
+      : ST.logs.slice().reverse().map(function(e){
+          return '<div class="log-item"><div class="flex-sb">' +
+            '<span><b style="color:#0B1D3A">'+esc(e.user)+'</b> <span style="color:#0FA4A0">'+esc(e.action)+'</span>' +
+            (e.details&&e.details.fee?' <span style="color:#4A5568">— '+fmt(parseFloat(e.details.fee))+'/wk</span>':'') + '</span>' +
+            '<span style="color:#8896A6;font-size:10px">'+new Date(e.ts).toLocaleString("en-GB")+'</span>' +
+            '</div></div>';
+        }).join("");
+    content = '<div class="flex-sb mb8"><span style="font-size:11px;color:#8896A6">'+ST.logs.length+' events</span>' +
+      '<button class="btn-d" id="btnClearLogs">Clear</button></div>' +
+      '<div class="log-list">'+logHtml+'</div>';
+  }
+
+  if (ST.adminTab === "feedback") {
+    var fbHtml = ST.feedback.length === 0
+      ? '<p style="padding:20px;color:#8896A6;text-align:center;font-size:12px">No feedback yet.</p>'
+      : ST.feedback.slice().reverse().map(function(f){
+          return '<div class="fb-item"><div class="flex-sb mb8">' +
+            '<span style="font-weight:600;color:#0B1D3A;font-size:12px">'+esc(f.user)+'</span>' +
+            '<span style="font-size:10px;color:#8896A6">'+new Date(f.ts).toLocaleString("en-GB")+'</span>' +
+            '</div><p style="font-size:12px;color:#4A5568;margin:0">'+esc(f.text)+'</p></div>';
+        }).join("");
+    content = '<div class="flex-sb mb8"><span style="font-size:11px;color:#8896A6">'+ST.feedback.length+' submissions</span>' +
+      '<button class="btn-d" id="btnClearFb">Clear</button></div>' +
+      '<div class="log-list">'+fbHtml+'</div>';
+  }
+
+  return '<div style="width:100%;max-width:680px;padding:18px 20px 28px" class="card" style="max-height:95vh;overflow-y:auto">' +
+    '<div class="flex-sb mb14" style="flex-wrap:wrap;gap:6px">' +
+    '<div>'+logo(32)+(ST.saved?'<span style="color:#27AE60;font-size:11px;margin-left:8px">✓ Saved</span>':'')+'</div>' +
+    '<button class="btn btn-g" id="btnAdminOut">Sign Out</button></div>' +
+    '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px">'+tabHtml+'</div>' +
+    content + '</div>';
+}
+
+// ── CALCULATOR ─────────────────────────────────────────────────────────────
+function renderCalc() {
+  var c = ST.cfg;
+  var isN = ST.needLevel.charAt(0) === "N";
+  var result = ST.showResult ? computeFee() : null;
+
+  var nlGrid = "";
+  Object.keys(c.needLevels).forEach(function(code){
+    if (isN && code.charAt(0) !== "N") return;
+    if (!isN && code.charAt(0) !== "R") return;
+    var nl = c.needLevels[code];
+    var sel = ST.needLevel === code;
+    var selCls = sel ? (isN ? "sel-nur" : "sel-res") : "";
+    nlGrid += '<button class="nl-btn '+selCls+'" data-nl="'+code+'">' +
+      '<div class="nl-code">'+code+'</div>' +
+      '<div class="nl-desc">'+nl.desc+'</div></button>';
+  });
+
+  var uplifts =
+    '<div class="tog-row" id="togLR">' +
+    '<div><div style="font-size:12px;color:#1A1A2E">Large Room (+'+fmt(c.largeRoomUplift)+'/wk)</div></div>' +
+    tog("trLR", ST.largeRoom) + '</div>' +
+    '<div class="tog-row" id="togES">' +
+    '<div><div style="font-size:12px;color:#1A1A2E">En-Suite (+'+fmt(c.enSuiteUplift)+'/wk)</div></div>' +
+    tog("trES", ST.enSuite) + '</div>' +
+    '<div class="tog-row" id="togFNC">' +
+    '<div><div style="font-size:12px;color:#1A1A2E">FNC (+'+fmt(c.fncWeeklyRate)+'/wk)</div>' +
+    '<div class="hint">Funded Nursing Care — added on top of care fee</div></div>' +
+    tog("trFNC", ST.inclFNC) + '</div>' +
+    '<div style="padding:9px 0;border-bottom:1px solid #F0EDE8">' +
+    '<div class="flex-sb">' +
+    '<div><div style="font-size:12px;color:#1A1A2E">1-2-1 Care</div>' +
+    '<div class="hint">'+(ST.oneToOneHrs > 0 ? ST.oneToOneHrs+'hrs/day × '+fmt(c.oneToOneHourlyRate)+'/hr × 7 = '+fmt(ST.oneToOneHrs*c.oneToOneHourlyRate*7)+'/wk' : 'Enter daily hours to add uplift')+'</div></div>' +
+    '<input type="number" id="i121" min="0" step="0.5" value="'+ST.oneToOneHrs+'" style="width:70px;padding:6px 8px;border:1px solid #E2E0DB;border-radius:5px;font-size:12px;text-align:right;outline:none" placeholder="hrs"/>' +
+    '</div></div>';
+
+  var resultHtml = "";
+  if (!ST.showResult) {
+    resultHtml = '<div style="text-align:center;padding:28px 0;color:#8896A6">' +
+      '<div style="font-size:36px;opacity:.1;margin-bottom:6px">£</div>' +
+      '<p style="margin:0;font-size:12px">Select parameters and tap Calculate.</p></div>';
+  } else if (result) {
+    var tags = '<div class="wrap-gap mb10">' +
+      '<span class="tag" style="background:'+(isN?"#0B1D3A":"#0FA4A0")+'">'+ST.needLevel+'</span>' +
+      (ST.largeRoom?'<span class="tag" style="background:#D4A843">Large Room</span>':'') +
+      (ST.enSuite?'<span class="tag" style="background:#D4A843">En-Suite</span>':'') +
+      (ST.inclFNC?'<span class="tag" style="background:#27AE60">+FNC</span>':'') +
+      (ST.oneToOneHrs>0?'<span class="tag" style="background:#7B3F9E">'+ST.oneToOneHrs+'hrs 1-2-1</span>':'') +
+      '</div>';
+
+    var floorNotice = result.floorApplied
+      ? '<div class="floor-notice">⚠️ Cost-build of '+fmt(result.calculated)+'/wk is below the minimum fee. Floor of '+fmt(result.minFee)+'/wk applied. Please speak to your line manager before quoting.</div>'
+      : '';
+
+    var nonStaffBreakdown =
+      feeRow("Food & drinks", result.food) +
+      feeRow("Nursing & medical", result.medical) +
+      feeRow("Utilities", result.utilities) +
+      feeRow("Repairs & maintenance", result.repairs) +
+      feeRow("Furniture & equipment", result.furniture) +
+      feeRow("Housekeeping & gardens", result.housekeeping) +
+      feeRow("IT & technology", result.it) +
+      feeRow("Council tax", result.councilTax) +
+      '<div style="border-top:2px solid #0B1D3A;margin-top:5px;padding-top:5px;display:flex;justify-content:space-between;font-weight:700;color:#0B1D3A;font-size:12px">' +
+      '<span>Total non-staff /wk</span><span>'+fmt(result.nonStaffWk)+'</span></div>';
+
+    var upliftsInMargin = (ST.largeRoom || ST.enSuite || ST.oneToOneHrs > 0)
+      ? '<div style="margin-top:5px;padding-top:4px;border-top:1px solid #F0EDE8">' +
+        '<div style="font-size:9px;font-weight:700;color:#8896A6;text-transform:uppercase;margin-bottom:2px">Uplifts (inside margin)</div>' +
+        (ST.largeRoom ? feeRow("Large room", result.lrWk, "accent") : '') +
+        (ST.enSuite   ? feeRow("En-suite",   result.esWk, "accent") : '') +
+        (ST.oneToOneHrs > 0 ? feeRow("1-2-1 care ("+ST.oneToOneHrs+"hrs/day)", result.otwk, "accent") : '') +
+        '</div>' : '';
+
+    var fncLine = ST.inclFNC
+      ? '<div style="margin-top:4px;padding-top:4px;border-top:1px solid #F0EDE8">' +
+        '<div style="font-size:9px;font-weight:700;color:#8896A6;text-transform:uppercase;margin-bottom:2px">FNC — on top, not in margin</div>' +
+        feeRow("Funded Nursing Care", result.fncWk, "accent") + '</div>' : '';
+
+    resultHtml = tags + floorNotice +
+      '<div class="grp"><div class="grp-title">Non-Staff Costs (£/resident/week)</div>' + nonStaffBreakdown + '</div>' +
+      '<div class="grp"><div class="grp-title">Fee Build-Up (weekly)</div>' +
+      feeRow("Staff costs", result.staffWk) +
+      feeRow("Non-staff costs", result.nonStaffWk) +
+      '<div style="border-top:1px dashed #E2E0DB;margin:4px 0;padding-top:4px;display:flex;justify-content:space-between;font-size:12px;color:#4A5568">' +
+      '<span>Base cost</span><span style="font-weight:600">'+fmt(result.baseWk)+'</span></div>' +
+      upliftsInMargin +
+      '<div style="display:flex;justify-content:space-between;font-size:12px;color:#4A5568;padding:3px 0">' +
+      '<span>Total cost before margin</span><span style="font-weight:600">'+fmt(result.premargin)+'</span></div>' +
+      feeRow("Margin ("+Math.round(ST.cfg.profitMargin*100)+"%)", result.marginWk) +
+      '<div style="border-top:1px solid #E2E0DB;margin-top:4px;padding-top:4px;display:flex;justify-content:space-between;font-size:12px;color:#4A5568">' +
+      '<span>Calculated fee</span><span style="font-weight:600">'+fmt(result.calculated)+'</span></div>' +
+      (result.floorApplied ? '<div style="display:flex;justify-content:space-between;font-size:11px;color:#7A6520;padding:2px 0"><span>↳ Floor applied</span><span>'+fmt(result.minFee)+'</span></div>' : '') +
+      fncLine +
+      feeRow("TOTAL WEEKLY FEE", result.totalWk, "total") +
+      '</div>';
+
+    resultHtml = '<div class="result-card">' +
+      '<div style="font-size:10px;color:#8896A6;text-transform:uppercase;letter-spacing:2px">Weekly Fee</div>' +
+      '<div class="result-wk">'+fmt(result.totalWk)+'</div>' +
+      '<div class="result-meta">' +
+      '<div><div style="font-size:9px;color:#8896A6">DAILY</div><div style="font-size:14px;font-weight:700;color:#0B1D3A">'+fmt(result.daily)+'</div></div>' +
+      '<div class="result-meta-divider"></div>' +
+      '<div><div style="font-size:9px;color:#8896A6">ANNUAL</div><div style="font-size:14px;font-weight:700;color:#0B1D3A">'+fmt(result.annual)+'</div></div>' +
+      '</div></div>' + resultHtml;
+  }
+
+  return '<div id="app-inner">' +
+    '<div class="calc-header">' +
+    logo(38) +
+    '<div style="display:flex;gap:5px;align-items:center">' +
+    '<span style="font-size:10px;color:#8896A6;margin-right:2px">'+esc(ST.uName)+'</span>' +
+    '<button class="btn-sm" style="background:#0FA4A0" id="btnFb">Feedback</button>' +
+    '<button class="btn-sm" style="background:#0B1D3A" id="btnOut">Sign Out</button>' +
+    '</div></div>' +
+    '<div class="calc-body">' +
+    '<div class="mb14"><div style="font-size:14px;font-weight:700;color:#0B1D3A">Fee Quote Calculator</div>' +
+    '<div style="font-size:10px;color:#8896A6">Valid from '+esc(c.validFrom)+'</div></div>' +
+    '<label class="lbl">Care Type</label>' +
+    '<div class="type-toggle">' +
+    '<button class="type-btn" id="btnRes" style="background:'+(!isN?"#0FA4A0":"#fff")+';color:'+(!isN?"#fff":"#4A5568")+'">Residential</button>' +
+    '<button class="type-btn" id="btnNur" style="background:'+(isN?"#0B1D3A":"#fff")+';color:'+(isN?"#fff":"#4A5568")+';border-left:1px solid #E2E0DB">Nursing</button>' +
+    '</div>' +
+    '<label class="lbl">Care Need Level</label>' +
+    '<div class="nl-grid">'+nlGrid+'</div>' +
+    '<label class="lbl">Uplifts</label>' +
+    uplifts +
+    '<button class="btn btn-p btn-full mt20" id="btnCalc" style="padding:14px 20px;font-size:15px">Calculate Fee</button>' +
+    (ST.showResult?'<button class="btn-sm mt8" style="background:transparent;color:#8896A6;font-size:10px" id="btnReset">Reset</button>':'') +
+    '<div id="resultArea" style="margin-top:20px">'+resultHtml+'</div>' +
+    '</div></div>';
+}
+
+// ── FEEDBACK ───────────────────────────────────────────────────────────────
+function renderFeedback() {
+  if (ST.fbDone) {
+    return '<div class="page-center"><div class="card" style="max-width:440px;padding:30px 26px;text-align:center">' +
+      logo(48) + divider() +
+      '<div style="width:44px;height:44px;border-radius:22px;background:#27AE60;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:10px">✓</div>' +
+      '<p style="font-weight:600;color:#0B1D3A;font-size:15px;margin:6px 0 2px">Thank you.</p>' +
+      '<button class="btn btn-p mt16" id="btnFbBack">Back to Calculator</button>' +
+      '</div></div>';
+  }
+  return '<div class="page-center"><div class="card" style="max-width:440px;padding:30px 26px">' +
+    '<div style="text-align:center;margin-bottom:16px">'+logo(48)+'</div>' + divider() +
+    '<textarea style="min-height:100px;resize:vertical" placeholder="Suggestions, issues, or feature requests…" id="tFb">'+esc(ST.fbText)+'</textarea>' +
+    '<div class="flex-gap mt10">' +
+    '<button class="btn btn-g" style="flex:1" id="btnFbCancel">Cancel</button>' +
+    '<button class="btn btn-p" style="flex:1" id="btnFbSubmit"'+(ST.fbText.trim()?"":" disabled")+'>Submit</button>' +
+    '</div></div></div>';
+}
+
+// ── EVENT BINDING ──────────────────────────────────────────────────────────
+function bindEvents() {
+  function on(id, ev, fn) { var el=document.getElementById(id); if(el) el.addEventListener(ev, fn); }
+
+  // Login
+  on("iName","input",function(e){ ST.uName=e.target.value; ST.loginErr=""; refreshLoginBtn(); });
+  on("iEmail","input",function(e){ ST.uEmail=e.target.value; ST.loginErr=""; refreshLoginBtn(); });
+  on("iName","keydown",function(e){ if(e.key==="Enter") doLogin(); });
+  on("iEmail","keydown",function(e){ if(e.key==="Enter") doLogin(); });
+  on("btnLogin","click", doLogin);
+  on("btnAdmin","click",function(){ ST.view="admin"; render(); });
+
+  // Admin auth
+  on("iPw","input",function(e){ ST.adminPw=e.target.value; ST.adminErr=""; });
+  on("iPw","keydown",function(e){ if(e.key==="Enter") doAdminAuth(); });
+  on("btnAuth","click", doAdminAuth);
+  on("btnBack","click",function(){ ST.view="login"; render(); });
+
+  // Admin panel
+  on("btnAdminOut","click",function(){ ST.adminAuth=false; ST.adminPw=""; ST.view="login"; render(); });
+  on("btnReset","click",function(){
+    if(confirm("Reset ALL settings to defaults?")){ ST.cfg=JSON.parse(JSON.stringify(CFG)); saveCfg(); render(); }
+  });
+  on("btnClearLogs","click",function(){
+    if(confirm("Clear all logs?")){ ST.logs=[]; saveLogs(); render(); }
+  });
+  on("btnClearFb","click",function(){
+    if(confirm("Clear all feedback?")){ ST.feedback=[]; saveFb(); render(); }
+  });
+  document.querySelectorAll(".btn-tab").forEach(function(el){
+    el.addEventListener("click",function(){ ST.adminTab=this.dataset.tab; render(); });
+  });
+
+  // Calculator
+  on("btnRes","click",function(){ if(ST.needLevel.charAt(0)==="N"){ ST.needLevel="R3"; ST.showResult=false; render(); }});
+  on("btnNur","click",function(){ if(ST.needLevel.charAt(0)!=="N"){ ST.needLevel="N3"; ST.showResult=false; render(); }});
+  document.querySelectorAll(".nl-btn").forEach(function(el){
+    el.addEventListener("click",function(){ ST.needLevel=this.dataset.nl; ST.showResult=false; render(); });
+  });
+  on("togLR","click",function(){ ST.largeRoom=!ST.largeRoom; ST.showResult=false; render(); });
+  on("togES","click",function(){ ST.enSuite=!ST.enSuite; ST.showResult=false; render(); });
+  on("togFNC","click",function(){ ST.inclFNC=!ST.inclFNC; ST.showResult=false; render(); });
+  on("i121","input",function(e){ ST.oneToOneHrs=Math.max(0,parseFloat(e.target.value)||0); ST.showResult=false; });
+  on("btnCalc","click",function(){
+    ST.showResult=true;
+    var r=computeFee();
+    if(r) addLog("calculation",{needLevel:ST.needLevel,fee:r.totalWk.toFixed(2),oneToOneHrs:ST.oneToOneHrs});
+    render();
+    var ra=document.getElementById("resultArea");
+    if(ra) setTimeout(function(){ ra.scrollIntoView({behavior:"smooth",block:"start"}); },80);
+  });
+  on("btnReset","click",function(){
+    ST.showResult=false; ST.largeRoom=false; ST.enSuite=false;
+    ST.inclFNC=false; ST.oneToOneHrs=0; ST.needLevel="R3"; render();
+  });
+  on("btnFb","click",function(){ ST.view="feedback"; render(); });
+  on("btnOut","click",function(){ ST.view="login"; ST.showResult=false; render(); });
+
+  // Feedback
+  on("tFb","input",function(e){ ST.fbText=e.target.value; refreshFbBtn(); });
+  on("btnFbCancel","click",function(){ ST.view="calculator"; render(); });
+  on("btnFbSubmit","click",function(){
+    if(!ST.fbText.trim()) return;
+    ST.feedback.push({ts:new Date().toISOString(),user:ST.uName,email:ST.uEmail,text:ST.fbText.trim()});
+    addLog("feedback",{excerpt:ST.fbText.substring(0,80)});
+    saveFb(); ST.fbText=""; ST.fbDone=true; render();
+  });
+  on("btnFbBack","click",function(){ ST.fbDone=false; ST.view="calculator"; render(); });
+}
+
+function refreshLoginBtn() {
+  var btn = document.getElementById("btnLogin");
+  if (!btn) return;
+  var ok = ST.uName.trim().length > 1 && ST.uEmail.trim().toLowerCase().endsWith("@curaa.co.uk");
+  btn.disabled = !ok;
+}
+function refreshFbBtn() {
+  var btn = document.getElementById("btnFbSubmit");
+  if (btn) btn.disabled = !ST.fbText.trim();
+}
+function doLogin() {
+  ST.loginErr = "";
+  var n = ST.uName.trim(), e = ST.uEmail.trim().toLowerCase();
+  if (n.length < 2) { ST.loginErr = "Please enter your full name."; render(); return; }
+  if (!e.endsWith("@curaa.co.uk")) { ST.loginErr = "Access restricted to @curaa.co.uk addresses."; render(); return; }
+  addLog("login");
+  ST.view = "calculator"; render();
+}
+function doAdminAuth() {
+  if (ST.adminPw === ADMIN_PW) { ST.adminAuth=true; addLog("admin_login"); render(); }
+  else { ST.adminErr="Incorrect password."; render(); }
+}
+function updateCfg(el) {
+  var key = el.dataset.key;
+  if (key === "profitMargin100") { ST.cfg.profitMargin = (parseFloat(el.value)||0) / 100; }
+  else if (key === "validFrom")  { ST.cfg[key] = el.value; }
+  else                           { ST.cfg[key] = parseFloat(el.value) || 0; }
+  saveCfg(); render();
+}
+function updateNL(el) {
+  var code  = el.dataset.nlkey;
+  var field = el.dataset.nlfield;
+  ST.cfg.needLevels[code][field] = parseFloat(el.value) || 0;
+  saveCfg(); render();
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
