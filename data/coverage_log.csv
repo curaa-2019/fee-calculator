@@ -1,0 +1,26 @@
+home,category,contacts_found,contacts_with_email,contacts_with_phone
+Field House,ICB,3,0,0
+Field House,Hospital discharge,4,2,4
+Field House,Local authority commissioning,3,1,2
+Field House,Care-fees adviser,1,1,1
+Field House,Hospice/palliative,1,0,1
+Ashview Nursing,ICB,3,0,0
+Ashview Nursing,Hospital discharge,2,1,2
+Ashview Nursing,Local authority commissioning,3,1,2
+Ashview Nursing,Care-fees adviser,0,0,0
+Ashview Nursing,Hospice/palliative,2,2,2
+Broome End,ICB,1,0,0
+Broome End,Hospital discharge,3,2,3
+Broome End,Local authority commissioning,3,2,1
+Broome End,Care-fees adviser,0,0,0
+Broome End,Hospice/palliative,2,2,2
+Brook House,ICB,3,0,0
+Brook House,Hospital discharge,3,3,3
+Brook House,Local authority commissioning,2,1,0
+Brook House,Care-fees adviser,1,0,0
+Brook House,Hospice/palliative,1,0,1
+Clevedon Court,ICB,4,1,1
+Clevedon Court,Hospital discharge,3,2,3
+Clevedon Court,Local authority commissioning,2,1,1
+Clevedon Court,Care-fees adviser,1,1,1
+Clevedon Court,Hospice/palliative,2,2,2
