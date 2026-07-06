@@ -1,9 +1,9 @@
 # Care-home BD contact dataset
 
-Business-development contact dataset for the five Curaa homes, built via live web research across three passes (2026-07-03 to 2026-07-06). **Pass 1** covered the "official orgs first" tier: ICB leadership, hospital discharge/PALS teams, and local-authority adult social care commissioning, plus SOLLA care-fees advisers and hospice/palliative contacts picked up opportunistically. **Pass 2** covered the remaining categories: dementia cafés/community dementia support, carer centres/discharge charities, faith/community organisations, ABI/PI/rehab/insurer-related contacts, and GP practice managers/community nursing. **Pass 3** closed the SOLLA care-fees adviser gap (the weakest category after pass 2) with targeted searches per home. All 10 categories from the original brief are now represented for all 5 homes, each with at least 2 care-fees adviser contacts.
+Business-development contact dataset for the five Curaa homes, built via live web research across four passes (2026-07-03 to 2026-07-06). **Pass 1** covered the "official orgs first" tier: ICB leadership, hospital discharge/PALS teams, and local-authority adult social care commissioning, plus SOLLA care-fees advisers and hospice/palliative contacts picked up opportunistically. **Pass 2** covered the remaining categories: dementia cafés/community dementia support, carer centres/discharge charities, faith/community organisations, ABI/PI/rehab/insurer-related contacts, and GP practice managers/community nursing. **Pass 3** closed the SOLLA care-fees adviser gap (the weakest category after pass 2) with targeted searches per home. **Pass 4** was a dedicated email-recovery pass: targeted person-by-person searches (rather than broad category searches) plus confirmed domain-convention inference (e.g. `firstname.lastname@buckinghamshire.gov.uk`) for the 41 named contacts that pass 1-3 had found without an email. All 10 categories from the original brief are now represented for all 5 homes, each with at least 2 care-fees adviser contacts.
 
 ## Files
-- `care_home_bd_contacts.csv` — 140 contact rows, columns match the brief's schema plus `email_inferred`, `phone_role`, `notes` (useful for Airtable/HubSpot import and outreach QA).
+- `care_home_bd_contacts.csv` — 141 contact rows, columns match the brief's schema plus `email_inferred`, `phone_role`, `notes` (useful for Airtable/HubSpot import and outreach QA).
 - `coverage_log.csv` — home × category counts of contacts found / with email / with phone, across all 10 categories.
 
 ## Known limitation: WebFetch was blocked all session
@@ -41,12 +41,20 @@ Care-fees advisers (SOLLA) are now covered for every home (2–3 contacts each) 
 
 Named individuals (vs. generic team mailboxes/switchboards) are also scarce for **hospital discharge teams** (NHS trusts generally publish PALS/team contacts, not named discharge coordinators) and **GP practice managers near Clevedon Court** (CQC only lists the "Registered Manager," typically a GP partner, not the administrative Practice Manager).
 
+## Email coverage (after pass 4)
+141 rows, **92 (65%) have an email**, of which 8 are flagged `email_inferred=true` (domain-convention constructions, each with a corroborating real example noted in `notes` — never a bare guess). Of the 41 named contacts that were missing an email after passes 1-3, pass 4 resolved ~19 via targeted per-person searches and confirmed-pattern inference; **22 remain genuinely unresolved** and are explicitly annotated in `notes` as "email recovery pass: [reason]" rather than left silently blank. The unresolved ones cluster into two real structural categories, not search failures:
+- **ICB board members** (Robin Porter, Jan Thomas, Tom Abell, Philippa Baker, Dr Nick Broughton, Dr Priya Singh, Shane Devlin, David Jarrett): NHS ICBs do not publish board members' personal emails, only general enquiries mailboxes.
+- **NHS GP practice staff and generic charity/church staff** (e.g. Ruth Marriott, Claire Sharma, Nadia Langley, Hugh Weller-Lewis, Rev. Jonny Dade): individual staff emails simply aren't published; only switchboard/general mailboxes exist.
+
+A few resolved emails carry an explicit **low/moderate-confidence flag in `notes`** and should be spot-checked before outreach: Dr Jeff Farrar's address (inconsistent across two near-identical searches — may be partially redacted rather than wrong), Elaine Pope's (inferred only from her job-share partner's address on the shared nhs.net domain, weaker than a corporate-domain inference), and Peter Ginger's (surfaced via a data-broker site, not the firm's own page).
+
 ## Suggested follow-up
 1. Re-run with working WebFetch to pull full ICB board pages and verify the flagged low-confidence rows (see `notes` column for anything marked "verify before use" or "conflicting sources").
 2. For Clevedon Court's three nearest GP practices, call to get the named administrative Practice Manager (CQC only surfaced the Registered Manager/GP partner).
 3. Confirm Uttlesford/Stansted Mountfitchet eligibility for West Essex CAN's hospital discharge service and Action for Family Carers — both serve the wider region but their specific coverage of Broome End's exact postcode wasn't confirmed.
 4. Verify Stuart Emerson's (Centurion Chartered Financial Planners) actual office base before outreach — sources conflict between a Cheltenham and a Clevedon address.
 5. Verify Nicky Cave's (Eldercare Group) relevance to Brook House specifically — her office is ~40mi away in Essex; the Bucks connection comes from a secondary source (B&M Care Homes) rather than a stated local office.
+6. Spot-check the low-confidence emails flagged above (Jeff Farrar, Elaine Pope, Peter Ginger) with a phone call before using them for outreach.
 
 ## Status: dataset complete for this engagement
-All 10 categories are populated for all 5 homes with real, sourced contacts (no fabricated data anywhere). Remaining gaps are the kind that need either a policy change to this environment's network access (to fetch full ICB board pages directly) or manual phone/email verification of specific flagged rows — both are called out above rather than guessed around.
+All 10 categories are populated for all 5 homes with real, sourced contacts (no fabricated data anywhere), and email coverage has been pushed as far as targeted search and brief-sanctioned pattern inference can take it. Remaining gaps are either genuinely unpublished (ICB board members, generic NHS/GP staff) or need a policy change to this environment's network access (to fetch full ICB board pages and JS-protected contact forms directly) rather than more searching.
